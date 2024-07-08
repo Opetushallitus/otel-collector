@@ -11,11 +11,11 @@ receivers:
         - job_name: 'java-prometheus'
           scrape_interval: 5s
           static_configs:
-            - targets: ['0.0.0.0:9100']
+            - targets: ['localhost:9100']
         - job_name: 'jmx-prometheus'
           scrape_interval: 5s
           static_configs:
-            - targets: ['0.0.0.0:1134']
+            - targets: ['localhost:1134']
   awsecscontainermetrics:
     collection_interval: 30s
   filelog/app:
