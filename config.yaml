@@ -71,7 +71,7 @@ processors:
 exporters:
   awsxray:
   prometheusremotewrite:
-    endpoint: ${env:AWS_PROMETHEUS_ENDPOINT}
+    endpoint: "${env:AWS_PROMETHEUS_ENDPOINT}"
     auth:
       authenticator: sigv4auth
     resource_to_telemetry_conversion:
@@ -83,20 +83,20 @@ exporters:
       max_elapsed_time: 30s
     timeout: 15s
   awscloudwatchlogs/app:
-    log_group_name: "'${env:ENVIRONMENT}'-app-'${env:SERVICE}'"
-    log_stream_name: ${env:HOSTNAME}
+    log_group_name: ${ENVIRONMENT}-app-${SERVICE}
+    log_stream_name: ${HOSTNAME}
     raw_log: true
   awscloudwatchlogs/audit:
-    log_group_name: "'${env:ENVIRONMENT}'-audit-'${env:SERVICE}'"
-    log_stream_name: ${env:HOSTNAME}
+    log_group_name: ${ENVIRONMENT}-audit-${SERVICE}
+    log_stream_name: ${HOSTNAME}
     raw_log: true
   awscloudwatchlogs/debug:
-    log_group_name: "'${env:ENVIRONMENT}'-debug-'${env:SERVICE}'"
-    log_stream_name: ${env:HOSTNAME}
+    log_group_name: ${ENVIRONMENT}-debug-${SERVICE}
+    log_stream_name: ${HOSTNAME}
     raw_log: true
   awscloudwatchlogs/access:
-    log_group_name: "'${env:ENVIRONMENT}'-access-'${env:SERVICE}'"
-    log_stream_name: ${env:HOSTNAME}
+    log_group_name: ${ENVIRONMENT}-access-${SERVICE}
+    log_stream_name: ${HOSTNAME}
     raw_log: true
 
 
