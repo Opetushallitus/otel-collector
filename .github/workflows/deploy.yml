@@ -34,7 +34,7 @@ jobs:
           images: |
             ${{ env.ECR_REPO }}
           tags: |
-            type=raw,value=ga-{{ github.GITHUB_RUN_NUMBER }}
+            type=raw,value=ga-${{ github.GITHUB_RUN_NUMBER }}
             type=ref,event=branch
             type=ref,event=tag
             type=ref,event=pr
