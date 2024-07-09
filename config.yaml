@@ -17,7 +17,7 @@ receivers:
           static_configs:
             - targets: ['localhost:1134']
   awsecscontainermetrics:
-    collection_interval: 30s
+    collection_interval: 5s
   filelog/app:
     include:
     - /logs/oph*.log
