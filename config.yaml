@@ -51,11 +51,9 @@ receivers:
     start_at: beginning
 
 processors:
-  batch/traces:
-    timeout: 1s
-    send_batch_size: 50
-  batch/metrics:
-    timeout: 60s
+  memory_limiter:
+    limit_mib: 50
+    check_interval: 5s
   resourcedetection:
     detectors:
       - env
@@ -122,11 +120,11 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [resourcedetection, batch/traces]
+      processors: [resourcedetection, memory_limiter]
       exporters: [awsxray]
     metrics:
       receivers: [prometheus]
-      processors: [resourcedetection, batch/metrics]
+      processors: [resourcedetection, memory_limiter]
       exporters: [prometheusremotewrite]
     metrics/ecs:
       receivers: [awsecscontainermetrics]
