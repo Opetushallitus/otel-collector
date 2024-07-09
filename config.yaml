@@ -54,6 +54,15 @@ processors:
   batch/traces:
     timeout: 1s
     send_batch_size: 50
+  batch/metrics:
+    timeout: 60s
+  resourcedetection:
+    detectors:
+      - env
+      - system
+      - ecs
+      - ec2
+    timeout: 60s
   filter:
     metrics:
       include:
@@ -67,6 +76,7 @@ processors:
           - ecs.task.network.rate.tx
           - ecs.task.storage.read_bytes
           - ecs.task.storage.write_bytes
+          - container.duration
 
 exporters:
   awsxray:
@@ -116,6 +126,7 @@ service:
       exporters: [awsxray]
     metrics:
       receivers: [prometheus]
+      processors: [resourcedetection, batch/metrics]
       exporters: [prometheusremotewrite]
     metrics/ecs:
       receivers: [awsecscontainermetrics]
