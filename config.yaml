@@ -79,6 +79,7 @@ processors:
 
 exporters:
   logging:
+    verbosity: detailed
   awsxray:
     region: ${env:AWS_REGION}
   prometheusremotewrite:
