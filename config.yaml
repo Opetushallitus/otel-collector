@@ -130,7 +130,7 @@ service:
       exporters: [awsxray]
     metrics:
       receivers: [prometheus]
-      processors: [resourcedetection, attributes, memory_limiter]
+      processors: [resourcedetection, resource, memory_limiter]
       exporters: [prometheusremotewrite]
     metrics/ecs:
       receivers: [awsecscontainermetrics]
