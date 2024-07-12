@@ -12,22 +12,10 @@ receivers:
           scrape_interval: 5s
           static_configs:
             - targets: ['localhost:9100']
-          relabel-configs:
-            - action: replace
-              source_labels: [__address__]
-              regex: '.*'
-              target_label: instance
-              replacement: $${env:HOSTNAME}
         - job_name: 'jmx-prometheus'
           scrape_interval: 5s
           static_configs:
             - targets: ['localhost:1134']
-          relabel-configs:
-            - action: replace
-              source_labels: [__address__]
-              regex: '.*'
-              target_label: instance
-              replacement: $${env:HOSTNAME}
 
   awsecscontainermetrics:
     collection_interval: 5s
