@@ -17,7 +17,7 @@ receivers:
               source_labels: [__address__]
               regex: '.*'
               target_label: instance
-              replacement: ${env:HOSTNAME}
+              replacement: $${env:HOSTNAME}
         - job_name: 'jmx-prometheus'
           scrape_interval: 5s
           static_configs:
@@ -27,7 +27,7 @@ receivers:
               source_labels: [__address__]
               regex: '.*'
               target_label: instance
-              replacement: ${env:HOSTNAME}
+              replacement: $${env:HOSTNAME}
 
   awsecscontainermetrics:
     collection_interval: 5s
