@@ -12,10 +12,17 @@ receivers:
           scrape_interval: 5s
           static_configs:
             - targets: ['localhost:9100']
+          labels:
+            hostname: ${env:hostname}
+            instance: ${env:hostname}
         - job_name: 'jmx-prometheus'
           scrape_interval: 5s
           static_configs:
             - targets: ['localhost:1134']
+          labels:
+            hostname: ${env:hostname}
+            instance: ${env:hostname}
+
   awsecscontainermetrics:
     collection_interval: 5s
   filelog/app:
@@ -80,7 +87,7 @@ exporters:
   awsxray:
     region: ${env:AWS_REGION}
   prometheusremotewrite:
-    endpoint: "${env:AWS_PROMETHEUS_ENDPOINT}"
+    endpoint: ${env:AWS_PROMETHEUS_ENDPOINT}
     auth:
       authenticator: sigv4auth
     resource_to_telemetry_conversion:
