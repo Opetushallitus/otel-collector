@@ -61,7 +61,6 @@ processors:
       - system
       - ecs
       - ec2
-    timeout: 60s
   filter:
     metrics:
       include:
@@ -80,7 +79,59 @@ processors:
     attributes:
       - key: instance
         action: upsert
-        from_attribute: aws.ecs.task_id
+        from_attribute: aws.ecs.task.id
+      - key: TaskDefinitionFamily
+        from_attribute: aws.ecs.task.family
+        action: insert
+      - key: aws.ecs.task.family
+        action: delete
+      - key: InstanceId
+        from_attribute: host.id
+        action: insert
+      - key: host.id
+        action: delete
+      - key: TaskARN
+        from_attribute: aws.ecs.task.arn
+        action: insert
+      - key: aws.ecs.task.arn
+        action: delete
+      - key: TaskDefinitionRevision
+        from_attribute: aws.ecs.task.revision
+        action: insert
+      - key: aws.ecs.task.revision
+        action: delete
+      - key: LaunchType
+        from_attribute: aws.ecs.launchtype
+        action: insert
+      - key: aws.ecs.launchtype
+        action: delete
+      - key: ClusterARN
+        from_attribute: aws.ecs.cluster.arn
+        action: insert
+      - key: aws.ecs.cluster.arn
+        action: delete
+      - key: cloud.provider
+        action: delete
+      - key: cloud.platform
+        action: delete
+      - key: cloud.account.id
+        action: delete
+      - key: cloud.region
+        action: delete
+      - key: cloud.availability_zone
+        action: delete
+      - key: aws.log.group.names
+        action: delete
+      - key: aws.log.group.arns
+        action: delete
+      - key: aws.log.stream.names
+        action: delete
+      - key: host.image.id
+        action: delete
+      - key: host.name
+        action: delete
+      - key: host.type
+        action: delete
 
 
 exporters:
