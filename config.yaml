@@ -52,10 +52,6 @@ receivers:
     start_at: beginning
 
 processors:
-  attributes:
-    actions:
-      - key: instance
-        from_attribute: 
   memory_limiter:
     limit_mib: 50
     check_interval: 5s
