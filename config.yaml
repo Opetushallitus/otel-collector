@@ -86,9 +86,9 @@ processors:
       - key: aws.ecs.task.family
         action: delete
       - key: InstanceId
-        from_attribute: host.id
+        from_attribute: host.name
         action: insert
-      - key: host.id
+      - key: host.name
         action: delete
       - key: TaskARN
         from_attribute: aws.ecs.task.arn
