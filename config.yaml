@@ -76,10 +76,14 @@ processors:
           - ecs.task.storage.read_bytes
           - ecs.task.storage.write_bytes
           - container.duration
+  attributes:
+    actions:
+      - key: instance
+        action: upsert
+        from_attribute: aws_ecs_task_id
+
 
 exporters:
-  logging:
-    verbosity: detailed
   awsxray:
     region: ${env:AWS_REGION}
   prometheusremotewrite:
@@ -126,12 +130,12 @@ service:
       exporters: [awsxray]
     metrics:
       receivers: [prometheus]
-      processors: [resourcedetection, memory_limiter]
-      exporters: [logging, prometheusremotewrite]
+      processors: [resourcedetection, attributes, memory_limiter]
+      exporters: [prometheusremotewrite]
     metrics/ecs:
       receivers: [awsecscontainermetrics]
       processors: [filter]
-      exporters: [logging, prometheusremotewrite]
+      exporters: [prometheusremotewrite]
     logs/app:
       receivers: [filelog/app]
       exporters: [awscloudwatchlogs/app]
