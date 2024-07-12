@@ -12,16 +12,10 @@ receivers:
           scrape_interval: 5s
           static_configs:
             - targets: ['localhost:9100']
-          labels:
-            hostname: ${env:hostname}
-            instance: ${env:hostname}
         - job_name: 'jmx-prometheus'
           scrape_interval: 5s
           static_configs:
             - targets: ['localhost:1134']
-          labels:
-            hostname: ${env:hostname}
-            instance: ${env:hostname}
 
   awsecscontainermetrics:
     collection_interval: 5s
@@ -58,6 +52,10 @@ receivers:
     start_at: beginning
 
 processors:
+  attributes:
+    actions:
+      - key: instance
+        from_attribute: 
   memory_limiter:
     limit_mib: 50
     check_interval: 5s
@@ -84,6 +82,7 @@ processors:
           - container.duration
 
 exporters:
+  debug:
   awsxray:
     region: ${env:AWS_REGION}
   prometheusremotewrite:
@@ -115,7 +114,6 @@ exporters:
     log_stream_name: ${env:HOSTNAME}
     raw_log: true
 
-
 extensions:
   health_check:
   awsproxy:
@@ -132,11 +130,11 @@ service:
     metrics:
       receivers: [prometheus]
       processors: [resourcedetection, memory_limiter]
-      exporters: [prometheusremotewrite]
+      exporters: [debug, prometheusremotewrite]
     metrics/ecs:
       receivers: [awsecscontainermetrics]
       processors: [filter]
-      exporters: [prometheusremotewrite]
+      exporters: [debug, prometheusremotewrite]
     logs/app:
       receivers: [filelog/app]
       exporters: [awscloudwatchlogs/app]
