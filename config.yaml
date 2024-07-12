@@ -78,7 +78,7 @@ processors:
           - container.duration
 
 exporters:
-  debug:
+  logging:
   awsxray:
     region: ${env:AWS_REGION}
   prometheusremotewrite:
@@ -126,11 +126,11 @@ service:
     metrics:
       receivers: [prometheus]
       processors: [resourcedetection, memory_limiter]
-      exporters: [debug, prometheusremotewrite]
+      exporters: [logging, prometheusremotewrite]
     metrics/ecs:
       receivers: [awsecscontainermetrics]
       processors: [filter]
-      exporters: [debug, prometheusremotewrite]
+      exporters: [logging, prometheusremotewrite]
     logs/app:
       receivers: [filelog/app]
       exporters: [awscloudwatchlogs/app]
