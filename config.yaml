@@ -76,11 +76,11 @@ processors:
           - ecs.task.storage.read_bytes
           - ecs.task.storage.write_bytes
           - container.duration
-  attributes:
-    actions:
+  resource:
+    attributes:
       - key: instance
         action: upsert
-        from_attribute: aws_ecs_task_id
+        from_attribute: aws.ecs.task_id
 
 
 exporters:
