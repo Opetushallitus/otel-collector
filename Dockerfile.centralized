@@ -1,0 +1,4 @@
+FROM public.ecr.aws/aws-observability/aws-otel-collector:v0.40.0
+COPY --chown=aoc ecs_sd_targets.yaml /etc/ecs_sd_targets.yaml
+COPY config-centralized-collector-prometheus-emf.yaml /etc/ecs/config.yaml
+CMD ["--config=/etc/ecs/config.yaml"]

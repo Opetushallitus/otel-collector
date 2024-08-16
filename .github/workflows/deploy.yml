@@ -5,7 +5,7 @@ on:
 
 permissions:
   id-token: write   # This is required for requesting the JWT
-  contents: write    # This is required for actions/checkout read/write
+  contents: read    # This is required for actions/checkout read
 
 env:
   ECR_REPO: 190073735177.dkr.ecr.eu-west-1.amazonaws.com/utility/aws-otel-collector-sd
@@ -28,16 +28,22 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Docker meta for alpine images
-        id: meta
+        id: meta-sidecar
         uses: docker/metadata-action@v4
         with:
           images: |
             ${{ env.ECR_REPO }}
           tags: |
-            type=raw,value=ga-${{ github.run_number }}
-            type=ref,event=branch
-            type=ref,event=tag
-            type=ref,event=pr
+            type=raw,value=sidecar-ga-${{ github.run_number }}
+
+      - name: Docker meta for alpine images
+        id: meta-centralized
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            ${{ env.ECR_REPO }}
+          tags: |
+            type=raw,value=centralized-ga-${{ github.run_number }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -51,11 +57,22 @@ jobs:
         with:
           registry: ${{ steps.ecr-login.outputs.registry }}
 
-      - name: Build and export to Docker
+      - name: Build and export sidecar to ECR
         uses: docker/build-push-action@v6
         with:
           context: .
+          file: Dockerfile.sidecar
           push: true
           platforms: linux/amd64, linux/arm64
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta-sidecar.outputs.tags }}
+          labels: ${{ steps.meta-sidecar.outputs.labels }}
+
+      - name: Build and export centralized to ECR
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.centralized
+          push: true
+          platforms: linux/amd64, linux/arm64
+          tags: ${{ steps.meta-centralized.outputs.tags }}
+          labels: ${{ steps.meta-centralized.outputs.labels }}

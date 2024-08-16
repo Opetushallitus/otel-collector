@@ -1,0 +1,70 @@
+receivers:
+  filelog/app:
+    include:
+    - /logs/oph*.log
+    - /logs/app*.log
+    - /logs/app*.internal
+    - /logs/catalina0.log
+    - /logs/virkailija.log
+    - /logs/hakija.log
+    - /logs/cas-cas.log
+    - /logs/cas-oppija.log
+    - /logs/ehoks.log
+    - /logs/henkilotietomuutos*.log
+    - /logs/kayttooikeus*.log
+    - /logs/*-console.log
+    multiline:
+      line_start_pattern: ^\d+-\d+-\d+.\d+:\d+:\d+.\d+\+?\d?\d?:?\d?\d?|^\[.*\]
+    start_at: beginning
+  filelog/audit:
+    include:
+    - /logs/audit*
+    - /logs/auditlog_*
+    start_at: beginning
+  filelog/access:
+    include:
+    - /logs/*access*
+    - /logs/access*
+    start_at: beginning
+  filelog/debug:
+    include:
+    - /logs/*_gc.log*
+    start_at: beginning
+
+exporters:
+  awscloudwatchlogs/app:
+    log_group_name: ${env:ENV_NAME}-app-${env:SERVICE}
+    log_stream_name: ${env:HOSTNAME}
+    raw_log: true
+  awscloudwatchlogs/audit:
+    log_group_name: ${env:ENV_NAME}-audit-${env:SERVICE}
+    log_stream_name: ${env:HOSTNAME}
+    raw_log: true
+  awscloudwatchlogs/debug:
+    log_group_name: ${env:ENV_NAME}-debug-${env:SERVICE}
+    log_stream_name: ${env:HOSTNAME}
+    raw_log: true
+  awscloudwatchlogs/access:
+    log_group_name: ${env:ENV_NAME}-access-${env:SERVICE}
+    log_stream_name: ${env:HOSTNAME}
+    raw_log: true
+
+extensions:
+  health_check:
+
+service:
+  pipelines:
+    logs/app:
+      receivers: [filelog/app]
+      exporters: [awscloudwatchlogs/app]
+    logs/audit:
+      receivers: [filelog/audit]
+      exporters: [awscloudwatchlogs/audit]
+    logs/access:
+      receivers: [filelog/access]
+      exporters: [awscloudwatchlogs/access]
+    logs/debug:
+      receivers: [filelog/debug]
+      exporters: [awscloudwatchlogs/debug]
+
+  extensions: [health_check]

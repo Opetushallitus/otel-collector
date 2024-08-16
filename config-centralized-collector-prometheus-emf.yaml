@@ -1,0 +1,90 @@
+extensions:
+  ecs_observer:
+    cluster_name: ${env:ECS_CLUSTER}
+    cluster_region: ${env:AWS_REGION}
+    result_file: '/etc/ecs_sd_targets.yaml'
+    refresh_interval: 60s
+    job_label_name: prometheus_job
+    task_definitions:
+      - job_name: 'task_definitions'
+        metrics_path: '/metrics'
+        metrics_ports:
+          - 1134
+          - 9100
+        arn_pattern: '.*:task-definition/.*:[0-9]+'
+
+receivers:
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: "ecssd"
+          file_sd_configs:
+            - files:
+                - '/etc/ecs_sd_targets.yaml' # MUST match the file name in ecs_observer.result_file
+          relabel_configs: # Relabel here because label with __ prefix will be dropped by receiver.
+            - source_labels: [ __meta_ecs_cluster_name ] # ClusterName
+              action: replace
+              target_label: ClusterName
+            - source_labels: [ __meta_ecs_service_name ] # ServiceName
+              action: replace
+              target_label: ServiceName
+            - source_labels: [ __meta_ecs_task_definition_family ] # TaskDefinitionFamily
+              action: replace
+              target_label: TaskDefinitionFamily
+            - source_labels: [ __meta_ecs_task_launch_type ] # LaunchType
+              action: replace
+              target_label: LaunchType
+            - source_labels: [ __meta_ecs_container_name ] # container_name
+              action: replace
+              target_label: container_name
+            - action: labelmap # Convert docker labels on container to metric labels
+              regex: ^__meta_ecs_container_labels_(.+)$ # Capture the key using regex, e.g. __meta_ecs_container_labels_Java_EMF_Metrics -> Java_EMF_Metrics
+              replacement: '$$1'
+
+processors:
+  batch:
+    timeout: 30s
+    send_batch_size: 10000
+  resource:
+    attributes:
+      - key: receiver # Insert receiver: prometheus for CloudWatch EMF Exporter to add prom_metric_type
+        value: "prometheus"
+        action: insert
+  metricstransform:
+    transforms:
+      - include: ".*" # Rename customized job label back to job
+        match_type: regexp
+        action: update
+        operations:
+          - label: prometheus_job # must match the value configured in ecs_observer
+            new_label: job
+            action: update_label
+
+exporters:
+  awsemf:
+    namespace: ECS/ContainerInsights/Prometheus # Use the exact namespace for builtin dashboard to work
+    log_group_name: "/aws/ecs/containerinsights/{{ClusterName}}/prometheus" # Log group name format is fixed as well, the only variable is cluster name
+    dimension_rollup_option: NoDimensionRollup
+    metric_declarations:
+      - dimensions: [ [ ClusterName, TaskDefinitionFamily, area ] ]
+        metric_name_selectors:
+          - "^jvm_memory_bytes_used$"
+      - dimensions: [ [ ClusterName, TaskDefinitionFamily, pool ] ]
+        metric_name_selectors:
+          - "^jvm_memory_pool_bytes_used$"
+      - dimensions: [ [ ClusterName, TaskDefinitionFamily ] ]
+        metric_name_selectors:
+          - "^jvm_threads_(current|daemon)$"
+          - "^jvm_classes_loaded$"
+          - "^java_lang_operatingsystem_(freephysicalmemorysize|totalphysicalmemorysize|freeswapspacesize|totalswapspacesize|systemcpuload|processcpuload|availableprocessors|openfiledescriptorcount)$"
+          - "^catalina_manager_(rejectedsessions|activesessions)$"
+          - "^jvm_gc_collection_seconds_(count|sum)$"
+          - "^catalina_globalrequestprocessor_(bytesreceived|bytessent|requestcount|errorcount|processingtime)$"
+service:
+  pipelines:
+    metrics:
+      receivers: [ prometheus ]
+      processors: [ batch, resource, metricstransform ]
+      exporters: [ awsemf ]
+
+  extensions: [ ecs_observer ]

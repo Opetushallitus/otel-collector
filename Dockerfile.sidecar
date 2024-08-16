@@ -1,0 +1,3 @@
+FROM public.ecr.aws/aws-observability/aws-otel-collector:v0.40.0
+COPY config-sidecar.yaml /etc/ecs/config.yaml
+CMD ["--config=/etc/ecs/config.yaml"]
